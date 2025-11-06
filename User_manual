@@ -1,0 +1,32 @@
+🔧 1. Where and how to use it
+
+You’ll use it inside TradingView.
+Follow this exactly:
+
+Open TradingView.com
+ and log in.
+
+Open any chart (e.g. NIFTY, BANKNIFTY, AAPL, BTCUSDT — doesn’t matter).
+
+Click on the “Pine Editor” tab at the bottom of the chart.
+
+Delete everything inside the editor and paste your code there.
+
+Click “Add to chart” (top-right corner of the editor).
+
+Done — the indicator will appear on the chart.
+
+You can then save it as your own script by clicking the floppy disk icon and naming it something like “CPR by TheSniperTrader with SMAs”.
+
+🧭 2. What this indicator shows
+
+This script plots Central Pivot Range (CPR) and Pivot levels for:
+
+Today’s CPR (support & resistance zones)
+
+Tomorrow’s projected CPR (based on today’s OHLC)
+
+Moving Averages (20, 50, 200 SMA)
+
+In short:
+It gives you the market structure (CPR zones) + trend direction (SMAs).
