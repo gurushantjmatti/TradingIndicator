@@ -1,0 +1,121 @@
+//@version=5
+indicator("CPR by TheSniperTrader", overlay=true)
+
+daily_cpr = input.int(title='Number of Daily CPR Back', defval=1, minval=0)
+Tomorrow_cpr = input.int(title='Number of Tomorrows CPR Look Back', defval=1, minval=0)
+showTomorrow = input(defval=true, title='Show Tomorrows CPR')
+showDailyCPR = input(defval=true, title='Show Dailys CPR')
+todayClose = request.security(syminfo.tickerid, 'D', close, gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+todayHigh = request.security(syminfo.tickerid, 'D', high, gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+todayLow = request.security(syminfo.tickerid, 'D', low, gaps=barmerge.gaps_off, lookahead=barmerge.lookahead_on)
+
+Nextpivot = (todayClose + todayHigh + todayLow) / 3
+Nextbc = (todayHigh + todayLow) / 2.0
+Nexttc = Nextpivot - Nextbc + Nextpivot
+NextR1 = Nextpivot * 2 - todayLow
+NextR2 = Nextpivot + todayHigh - todayLow
+NextR3 = todayHigh + 2 * (Nextpivot - todayLow)
+NextS1 = Nextpivot * 2 - todayHigh
+NextS2 = Nextpivot - (todayHigh - todayLow)
+NextS3 = todayLow - 2 * (todayHigh - Nextpivot)
+
+new_bar(res) =>
+    ta.change(time(res)) != 0
+new_period(condition, src) =>
+    result = 0.0
+    result := condition ? src : result[1]
+    result
+
+pivot = (high + low + close) / 3.0
+bc = (high + low) / 2.0
+tc = pivot - bc + pivot
+R1 = 2 * pivot - low
+S1 = 2 * pivot - high
+R2 = pivot + high - low
+S2 = pivot - (high - low)
+R3 = high
+S3 = low
+R4 = high + 2 * (pivot - low)
+S4 = low - 2 * (high - pivot)
+
+//Daily Central Pivot Range 
+dpp = request.security(syminfo.tickerid, 'D', pivot[1], lookahead=barmerge.lookahead_on)
+dbc = request.security(syminfo.tickerid, 'D', bc[1], lookahead=barmerge.lookahead_on)
+dtc = request.security(syminfo.tickerid, 'D', tc[1], lookahead=barmerge.lookahead_on)
+dR1 = request.security(syminfo.tickerid, 'D', R1[1], lookahead=barmerge.lookahead_on)
+dS1 = request.security(syminfo.tickerid, 'D', S1[1], lookahead=barmerge.lookahead_on)
+dR2 = request.security(syminfo.tickerid, 'D', R2[1], lookahead=barmerge.lookahead_on)
+dS2 = request.security(syminfo.tickerid, 'D', S2[1], lookahead=barmerge.lookahead_on)
+dR3 = request.security(syminfo.tickerid, 'D', R3[1], lookahead=barmerge.lookahead_on)
+dS3 = request.security(syminfo.tickerid, 'D', S3[1], lookahead=barmerge.lookahead_on)
+dR4 = request.security(syminfo.tickerid, 'D', R4[1], lookahead=barmerge.lookahead_on)
+dS4 = request.security(syminfo.tickerid, 'D', S4[1], lookahead=barmerge.lookahead_on)
+
+TcNextpivot = request.security(syminfo.tickerid, 'D', Nextpivot, lookahead=barmerge.lookahead_on)
+TcNextbc = request.security(syminfo.tickerid, 'D', Nextbc, lookahead=barmerge.lookahead_on)
+TcNexttc = request.security(syminfo.tickerid, 'D', Nexttc, lookahead=barmerge.lookahead_on)
+TcNextR1 = request.security(syminfo.tickerid, 'D', NextR1, lookahead=barmerge.lookahead_on)
+TcNextR2 = request.security(syminfo.tickerid, 'D', NextR2, lookahead=barmerge.lookahead_on)
+TcNextR3 = request.security(syminfo.tickerid, 'D', NextR3, lookahead=barmerge.lookahead_on)
+TcNextS1 = request.security(syminfo.tickerid, 'D', NextS1, lookahead=barmerge.lookahead_on)
+TcNextS2 = request.security(syminfo.tickerid, 'D', NextS2, lookahead=barmerge.lookahead_on)
+TcNextS3 = request.security(syminfo.tickerid, 'D', NextS3, lookahead=barmerge.lookahead_on)
+one_day = 1000 * 60 * 60 * 24
+new_day = daily_cpr > 0 and timenow - time < one_day * daily_cpr and new_bar('D')
+dpp_ = new_period(new_day, dpp)
+dtc_ = new_period(new_day, dtc)
+dbc_ = new_period(new_day, dbc)
+dR1_ = new_period(new_day, dR1)
+dS1_ = new_period(new_day, dS1)
+dR2_ = new_period(new_day, dR2)
+dS2_ = new_period(new_day, dS2)
+dR3_ = new_period(new_day, dR3)
+dS3_ = new_period(new_day, dS3)
+dR4_ = new_period(new_day, dR4)
+dS4_ = new_period(new_day, dS4)
+next_day = Tomorrow_cpr > 0 and timenow - time < one_day * Tomorrow_cpr and new_bar('D')
+Nextpivot_ = new_period(next_day, TcNextpivot)
+Nextbc_ = new_period(next_day, TcNextbc)
+Nexttc_ = new_period(next_day, TcNexttc)
+NextR1_ = new_period(next_day, TcNextR1)
+NextR2_ = new_period(next_day, TcNextR2)
+NextR3_ = new_period(next_day, TcNextR3)
+NextS1_ = new_period(next_day, TcNextS1)
+NextS2_ = new_period(next_day, TcNextS2)
+NextS3_ = new_period(next_day, TcNextS3)
+
+timeFrames = timeframe.isminutes ? timeframe.multiplier : 60
+offest_count = math.ceil(375 / timeFrames)
+
+
+plot(showDailyCPR ? timeframe.isintraday ? dtc_ >= dbc_ ? dtc_ : dbc_ : na : na, title='Daily TC', style=plot.style_circles, color=color.new(#2962ff, 0), linewidth=2)
+plot(showDailyCPR ? timeframe.isintraday ? dpp_ : na : na, title='Daily PP', style=plot.style_circles, color=color.new(#2962ff, 0), linewidth=2)
+plot(showDailyCPR ? timeframe.isintraday ? dtc_ >= dbc_ ? dbc_ : dtc_ : na : na, title='Daily BC', style=plot.style_circles, color=color.new(#2962ff, 0), linewidth=2)
+plot(showDailyCPR ? dR1_ : na, title='R1', style=plot.style_circles, color=color.new(#429348, 0), linewidth=2)
+plot(showDailyCPR ? dR2_ : na, title='R2', style=plot.style_circles, color=color.new(#429348, 0), linewidth=2)
+plot(showDailyCPR ? dR3_ : na, title='PDH', style=plot.style_circles, color=color.new(#FF882F, 0), linewidth=2)
+plot(showDailyCPR ? dS1_ : na, title='S1', style=plot.style_circles, color=color.new(#ff3300, 0), linewidth=2)
+plot(showDailyCPR ? dS2_ : na, title='S2', style=plot.style_circles, color=color.new(#ff3300, 0), linewidth=2)
+plot(showDailyCPR ? dS3_ : na, title='PDL', style=plot.style_circles, color=color.new(#FF882F, 0), linewidth=2)
+plot(showDailyCPR ? dR4_ : na, title='R3', style=plot.style_circles, color=color.new(#429348, 0), linewidth=2)
+plot(showDailyCPR ? dS4_ : na, title='S3', style=plot.style_circles, color=color.new(#ff3300, 0), linewidth=2)
+
+plot(showTomorrow ? Nextbc_ >= Nexttc_ ? Nextbc_ : Nexttc_ : na, title='Tomorrow TC', style=plot.style_circles, color=color.new(#2962ff, 0), offset=offest_count, linewidth=2)
+plot(showTomorrow ? Nextpivot_ : na, title='Tomorrow PP', style=plot.style_circles, color=color.new(#2962ff, 0), offset=offest_count, linewidth=2)
+plot(showTomorrow ? Nextbc_ >= Nexttc_ ? Nexttc_ : Nextbc_ : na, title='Tomorrow BC', style=plot.style_circles, offset=offest_count, color=color.new(#2962ff, 0), linewidth=2)
+plot(showTomorrow ? NextR1_ : na, title='TomorrowR1', style=plot.style_circles, color=color.new(#429348, 0), offset=offest_count, linewidth=2)
+plot(showTomorrow ? NextR2_ : na, title='Tomorrow R2', style=plot.style_circles, color=color.new(#429348, 0), offset=offest_count, linewidth=2)
+plot(showTomorrow ? NextS1_ : na, title='Tomorrow S1', style=plot.style_circles, color=color.new(#ff3300, 0), offset=offest_count, linewidth=2)
+plot(showTomorrow ? NextS2_ : na, title='Tomorrow S2', style=plot.style_circles, color=color.new(#ff3300, 0), offset=offest_count, linewidth=2)
+plot(showTomorrow ? NextR3_ : na, title='Tomorrow R3', style=plot.style_circles, color=color.new(#429348, 0), offset=offest_count, linewidth=2)
+plot(showTomorrow ? NextS3_ : na, title='Tomorrow S3', style=plot.style_circles, color=color.new(#ff3300, 0), offset=offest_count, linewidth=2)
+
+// Calculate Moving Averages 
+sma20 = ta.sma(close, 20)
+sma50 = ta.sma(close, 50)
+sma200 = ta.sma(close, 200)
+
+// Plot SMAs 
+plot(sma20, color=color.new(color.blue, 0), title='SMA20')
+plot(sma50, color=color.new(color.green, 0), title='SMA50')
+plot(sma200, color=color.new(color.red, 0), title='SMA200')
